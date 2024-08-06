@@ -1,6 +1,5 @@
 # example
 
-Demonstrates how to use the haishin_kit plugin.
 
 ## Getting Started
 
