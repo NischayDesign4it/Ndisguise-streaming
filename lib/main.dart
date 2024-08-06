@@ -15,13 +15,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'background_service.dart';
 import 'package:http/http.dart' as http;
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeService();
 
-  // const String server = "rtmp://a.rtmp.youtube.com/live2";
-  // const streamKey = "3tmy-x8sp-cff5-rbsf-3d7d";
   const String server = "rtmp://live.twitch.tv/app/";
   const streamKey = "live_681536046_qbeaUskvqTi3ISMiGMNsmZm2RCh1HE";
 
@@ -29,13 +26,12 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body:
-          Example2(
-            server: server,
-            streamKey: streamKey,
-          ),
+        body: Example2(
+          server: server,
+          streamKey: streamKey,
         ),
       ),
+    ),
   );
 }
 
@@ -58,7 +54,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
-
   }
 
   @override
@@ -122,15 +117,10 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: _stream == null ? const Text("") : StreamViewTexture(_stream),
         ),
-
       ),
     );
   }
 }
-
-
-
-
 
 class Example2 extends StatefulWidget {
   final String server;
@@ -188,9 +178,10 @@ class Example2State extends State<Example2> {
   }
 
   void _startPolling() {
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+    _timer = Timer.periodic(Duration(milliseconds: 500), (timer) async {
       final status = await _fetchStreamingStatus();
       print("Fetched streaming status: $status");
+
       if (status == true && _currentState.status != LiveStreamStatus.living) {
         print("Starting stream...");
         _controller.startStreaming();
@@ -202,13 +193,26 @@ class Example2State extends State<Example2> {
   }
 
   Future<bool> _fetchStreamingStatus() async {
-    final response = await http.get(Uri.parse('http://54.205.106.103:8000/api/status/'));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print(data);
-      return data['status'] == 'true'; // Adjust according to your API response
-    } else {
-      throw Exception('Failed to load streaming status');
+    try {
+      final response = await http.get(Uri.parse('http://54.205.106.103:8000/api/status/'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("API Response: $data");
+
+        // Ensure case insensitivity and handle boolean conversion
+        final status = data['Status']?.toString().toLowerCase();
+        if (status == 'true' || status == '1') {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        print("Failed to load streaming status, status code: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print("Error fetching streaming status: $e");
+      return false;
     }
   }
 
@@ -249,108 +253,6 @@ class Example2State extends State<Example2> {
     }
   }
 }
-
-
-// class Example2State extends State<Example2> {
-//   late final CameraLiveStreamController _controller;
-//
-//   late StreamSubscription<LiveStreamState> _subscription;
-//
-//   late LiveStreamState _currentState;
-//   bool _audioSessionConfigured = true;
-//
-//   @override
-//   void initState() {
-//
-//     super.initState();
-//     _controller = CameraLiveStreamController(
-//       widget.server,
-//       widget.streamKey,
-//     )..initialize();
-//
-//     _init();
-//
-//     _subscription = _controller.stateStream.listen((event) {
-//       if (_currentState != event) {
-//         setState(() {
-//           _currentState = event;
-//         });
-//       }
-//     });
-//
-//     _currentState = _controller.state;
-//
-//
-//   }
-//
-//   void _init() async {
-//     await Permission.camera.request();
-//     await Permission.microphone.request();
-//
-//     _audioSessionConfigured = await configureAudioSession();
-//
-//     setState(() {});
-//   }
-//
-//   @override
-//   void dispose() {
-//     _subscription.cancel();
-//     _controller.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Live Stream Example"),
-//       ),
-//       body: _buildBodyView(),
-//       floatingActionButton: _buildControlButton(),
-//     );
-//   }
-//
-//   Widget _buildBodyView() {
-//     if (_currentState.status == LiveStreamStatus.idle) {
-//       return const Center(
-//         child: Text("Configuring Camera..."),
-//       );
-//     } else if (_currentState.status == LiveStreamStatus.connected ||
-//         _currentState.status == LiveStreamStatus.initialized ||
-//         _currentState.status == LiveStreamStatus.living) {
-//       return LiveStreamPreview(
-//         textureManager: _controller,
-//         state: _currentState,
-//       );
-//     } else {
-//       return const Center(
-//         child: Text("Live stream stopped or disconnected."),
-//       );
-//     }
-//   }
-
-//   Widget? _buildControlButton() {
-//     if (_currentState.status == LiveStreamStatus.idle) {
-//       return FloatingActionButton(
-//         onPressed: _controller.initialize,
-//         child: const Text("Initialize"),
-//       );
-//     } else if (_currentState.status == LiveStreamStatus.connected) {
-//       return FloatingActionButton(
-//         onPressed: _controller.startStreaming,
-//         child: const Text("Publish"),
-//       );
-//     } else if (_currentState.status == LiveStreamStatus.living) {
-//       return FloatingActionButton(
-//         onPressed: () async {
-//           await _controller.stopStreaming();
-//         },
-//         child: const Text("Stop"),
-//       );
-//     }
-//     return null;
-//   }
-// }
 
 class LiveStreamPreview extends StatefulWidget {
   final LiveStreamTextureMixin textureManager;
@@ -432,8 +334,3 @@ class _LiveStreamPreviewState extends State<LiveStreamPreview> {
     );
   }
 }
-
-
-
-
-
