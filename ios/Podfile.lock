@@ -1,0 +1,51 @@
+PODS:
+  - audio_session (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_background_service_ios (0.0.3):
+    - Flutter
+  - haishin_kit (0.13.0):
+    - Flutter
+    - HaishinKit (= 1.9.1)
+  - HaishinKit (1.9.1):
+    - Logboard (~> 2.5.0)
+  - Logboard (2.5.0)
+  - permission_handler_apple (9.3.0):
+    - Flutter
+
+DEPENDENCIES:
+  - audio_session (from `.symlinks/plugins/audio_session/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_background_service_ios (from `.symlinks/plugins/flutter_background_service_ios/ios`)
+  - haishin_kit (from `.symlinks/plugins/haishin_kit/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+
+SPEC REPOS:
+  trunk:
+    - HaishinKit
+    - Logboard
+
+EXTERNAL SOURCES:
+  audio_session:
+    :path: ".symlinks/plugins/audio_session/ios"
+  Flutter:
+    :path: Flutter
+  flutter_background_service_ios:
+    :path: ".symlinks/plugins/flutter_background_service_ios/ios"
+  haishin_kit:
+    :path: ".symlinks/plugins/haishin_kit/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+
+SPEC CHECKSUMS:
+  audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_background_service_ios: e30e0d3ee69e4cee66272d0c78eacd48c2e94aac
+  haishin_kit: 1c6fc62a3cfd14c2e428eec0f286fd916ac271c0
+  HaishinKit: b35b0dbaf35db5365ab6e1002963ec56ee36e8ff
+  Logboard: 4674a3d86681539a0ad1fca528d888b90871e268
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
+
+PODFILE CHECKSUM: f612daf28bb41c4908e091843a3e68226a9ef611
+
+COCOAPODS: 1.15.2
