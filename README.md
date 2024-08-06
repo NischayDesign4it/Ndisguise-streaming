@@ -1,4 +1,4 @@
-# haishin_kit_example
+# example
 
 Demonstrates how to use the haishin_kit plugin.
 
