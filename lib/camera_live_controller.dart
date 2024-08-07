@@ -278,6 +278,7 @@ mixin LiveStreamControls on LiveStreamConnectionManager {
   Future<void> _releaseStreaming() async {
     await _detachAudioAndVideo();
     _notifyStateChange(status: LiveStreamStatus.stopped);
+
   }
 
   Future<void> switchCamera() async {

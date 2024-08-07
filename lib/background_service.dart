@@ -15,7 +15,6 @@ Future<void> initializeService() async {
       isForegroundMode: true,
       autoStart: true,
       autoStartOnBoot: true,
-
     ),
     iosConfiguration: IosConfiguration(
       // onForeground: onStart,
@@ -26,7 +25,6 @@ Future<void> initializeService() async {
 }
 
 void onStart(ServiceInstance service) async {
-
   if (service is AndroidServiceInstance) {
     service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();
@@ -37,43 +35,44 @@ void onStart(ServiceInstance service) async {
     });
   }
 
+  // Handle starting the stream
   service.on('startStreaming').listen((event) async {
-    final connection = await RtmpConnection.create(); // Use factory constructor
-    final stream = await RtmpStream.create(connection); // Use factory constructor
+    try {
+      final connection = await RtmpConnection.create();
+      final stream = await RtmpStream.create(connection);
 
-    // Setup stream settings
-    stream.audioSettings = AudioSettings(bitrate: 64 * 1000);
-    stream.videoSettings = VideoSettings(
-      width: 480,
-      height: 272,
-      bitrate: 512 * 1000,
-    );
+      // Setup stream settings
+      stream.audioSettings = AudioSettings(bitrate: 64 * 1000);
+      stream.videoSettings = VideoSettings(
+        width: 480,
+        height: 272,
+        bitrate: 512 * 1000,
+      );
 
-    // Start streaming
-    stream.publish("live");
+      // Start streaming
+      await stream.publish("live");
+      print("Stream started successfully.");
 
-    // Handle streaming logic here
-    service.on('stopStreaming').listen((event) {
-      stream.close();
-    });
+      // Handle stopping the stream
+      service.on('stopStreaming').listen((event) async {
+        await stream.close();
+        print("Stream stopped successfully.");
+      });
+    } catch (e) {
+      print("Error setting up or starting stream: $e");
+    }
   });
 
-
-
-
-Timer.periodic(const Duration(seconds: 2), (timer) async{
-    print("service is successfully running ${DateTime.now().second}");
+  // Update foreground notification periodically
+  Timer.periodic(const Duration(seconds: 2), (timer) async {
+    print("Service is running: ${DateTime.now().second}");
     if (service is AndroidServiceInstance) {
       if (await service.isForegroundService()) {
         service.setForegroundNotificationInfo(
-            title: "Background Service Running ", content: "Update at ${DateTime.now()}");
+          title: "Background Service Running",
+          content: "Update at ${DateTime.now()}",
+        );
       }
     }
   });
 }
-
-
-
-
-
-

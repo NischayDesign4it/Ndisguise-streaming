@@ -136,11 +136,129 @@ class Example2 extends StatefulWidget {
   State<Example2> createState() => Example2State();
 }
 
+// class Example2State extends State<Example2> {
+//   late final CameraLiveStreamController _controller;
+//   late StreamSubscription<LiveStreamState> _subscription;
+//   late LiveStreamState _currentState;
+//   bool _audioSessionConfigured = false;
+//   Timer? _timer;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = CameraLiveStreamController(
+//       widget.server,
+//       widget.streamKey,
+//     )..initialize();
+//
+//     _init();
+//
+//     _subscription = _controller.stateStream.listen((event) {
+//       print("Live stream state changed: ${event.status}");
+//       if (_currentState != event) {
+//         setState(() {
+//           _currentState = event;
+//         });
+//       }
+//     });
+//
+//     _currentState = _controller.state;
+//
+//     // Start polling the API for status
+//     _startPolling();
+//   }
+//
+//   void _init() async {
+//     await Permission.camera.request();
+//     await Permission.microphone.request();
+//
+//     _audioSessionConfigured = await configureAudioSession();
+//
+//     setState(() {});
+//   }
+//
+//   void _startPolling() {
+//     _timer = Timer.periodic(Duration(milliseconds: 500), (timer) async {
+//       final status = await _fetchStreamingStatus();
+//       print("Fetched streaming status: $status");
+//
+//       if (status == true && _currentState.status != LiveStreamStatus.living) {
+//         print("Starting stream...");
+//         _controller.startStreaming();
+//       } else if (status == false && _currentState.status == LiveStreamStatus.living) {
+//         print("Stopping stream...");
+//         _controller.stopStreaming();
+//       }
+//     });
+//   }
+//
+//   Future<bool> _fetchStreamingStatus() async {
+//     try {
+//       final response = await http.get(Uri.parse('http://54.205.106.103:8000/api/status/'));
+//       if (response.statusCode == 200) {
+//         final data = jsonDecode(response.body);
+//         print("API Response: $data");
+//
+//         // Ensure case insensitivity and handle boolean conversion
+//         final status = data['Status']?.toString().toLowerCase();
+//         if (status == 'true' || status == '1') {
+//           return true;
+//         } else {
+//           return false;
+//         }
+//       } else {
+//         print("Failed to load streaming status, status code: ${response.statusCode}");
+//         return false;
+//       }
+//     } catch (e) {
+//       print("Error fetching streaming status: $e");
+//       return false;
+//     }
+//   }
+//
+//   @override
+//   void dispose() {
+//     _subscription.cancel();
+//     _controller.dispose();
+//     _timer?.cancel();
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text("Live Stream Example"),
+//       ),
+//       body: _buildBodyView(),
+//     );
+//   }
+//
+//   Widget _buildBodyView() {
+//     if (_currentState.status == LiveStreamStatus.idle) {
+//       return const Center(
+//         child: Text("Configuring Camera..."),
+//       );
+//     } else if (_currentState.status == LiveStreamStatus.connected ||
+//         _currentState.status == LiveStreamStatus.initialized ||
+//         _currentState.status == LiveStreamStatus.living) {
+//       return LiveStreamPreview(
+//         textureManager: _controller,
+//         state: _currentState,
+//       );
+//     } else {
+//       return const Center(
+//         child: Text("Live stream stopped or disconnected."),
+//       );
+//     }
+//   }
+// }
+
+
 class Example2State extends State<Example2> {
   late final CameraLiveStreamController _controller;
   late StreamSubscription<LiveStreamState> _subscription;
   late LiveStreamState _currentState;
-  bool _audioSessionConfigured = true;
   Timer? _timer;
 
   @override
@@ -171,9 +289,7 @@ class Example2State extends State<Example2> {
   void _init() async {
     await Permission.camera.request();
     await Permission.microphone.request();
-
-    _audioSessionConfigured = await configureAudioSession();
-
+    // Initialize the camera, audio session setup if needed
     setState(() {});
   }
 
@@ -199,13 +315,8 @@ class Example2State extends State<Example2> {
         final data = jsonDecode(response.body);
         print("API Response: $data");
 
-        // Ensure case insensitivity and handle boolean conversion
         final status = data['Status']?.toString().toLowerCase();
-        if (status == 'true' || status == '1') {
-          return true;
-        } else {
-          return false;
-        }
+        return status == 'true' || status == '1';
       } else {
         print("Failed to load streaming status, status code: ${response.statusCode}");
         return false;
@@ -247,12 +358,15 @@ class Example2State extends State<Example2> {
         state: _currentState,
       );
     } else {
-      return const Center(
+      return
+        Center(
         child: Text("Live stream stopped or disconnected."),
       );
     }
   }
 }
+
+
 
 class LiveStreamPreview extends StatefulWidget {
   final LiveStreamTextureMixin textureManager;
@@ -334,3 +448,7 @@ class _LiveStreamPreviewState extends State<LiveStreamPreview> {
     );
   }
 }
+
+
+
+
